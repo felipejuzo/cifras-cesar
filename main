@@ -1,0 +1,189 @@
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <cstring>
+
+#define chave 3; //Numero de rotações
+
+using namespace std;
+
+//MENU PARA DEFINIR SE O USUARIO DESEJA INSERIR O TEXTO PARA ADICIONAR NO TXT, OU UTILIZAR TEXTO PRÉ DEFINIDO NA CRIAÇÃO
+void menuInicial(char texto[]){
+    int opcao;
+    FILE *arquivo;
+    //Repete ate digitar uma opcao valida
+    do{
+        system("cls");
+        printf("* * * * * SEJA BEM VINDO * * * * *\n\n");
+        printf("[1] Usar um arquivo pre estabelecido pelo sistema\n");
+        printf("[2] Digitar um texto para criacao do arquivo\n\n\n");
+        printf("Informe a opcao desejada: ");
+        scanf("%d", &opcao);
+
+        system("cls");
+        switch(opcao){
+        //Cria arquivo TXT com texto pre definido
+        case 1:
+            arquivo = fopen("AVALIACAO P2.txt" , "w");
+            fprintf(arquivo, "TEXTO DE TESTE GERADO PELO SISTEMA DE FORMA AUTOMATICA");
+            printf("Arquivo criado com sucesso!!\n\n");
+            break;
+        //Cria arquivo TXT com texto informado pelo usuario
+        case 2:
+            printf("\nDigite um texto para adicionar no arquivo:\n");
+            setbuf(stdin, NULL); //Limpar buffer
+            scanf("%[^\n]s", texto); //Para capturar todo o texto, até a digitação do ENTER
+
+            arquivo = fopen("AVALIACAO P2.txt" , "w");
+            fprintf(arquivo, "%s", texto);
+
+            printf("\n\nArquivo criado com sucesso!!\n\n");
+            break;
+        }
+        //Caso opcao nao seja valida
+        if(opcao > 2){
+            printf("Opcao informada invalida!!\n\n");
+            system("pause");
+        }
+    }while(opcao > 2);
+
+    fclose(arquivo);
+    system("pause");
+}
+
+//MENU PARA USUARIO INFORMAR A OPCAO DESEJADA, DEPOIS DE CRIAR O ARQUIVO TXT
+void menuOpcoes(int *opcao){
+    system("cls");
+    printf("* * * * * SEJA BEM VINDO * * * * *\n\n");
+    printf("[1] Ler o arquivo\n[2] Criptografar o arquivo\n[3] Descriptografar o arquivo\n[9] Sair\n\n");
+    printf("Informe a opcao desejada: ");
+    scanf("%d", &*opcao);
+}
+
+//FUNÇÃO PARA REALIZAR A LEITURA INICIAL DO TXT
+void lerArquivo(char texto[]){
+    FILE *arquivo;
+    arquivo = fopen("AVALIACAO P2.txt","r");
+    if (arquivo == NULL)
+    {
+        printf("\nProblema ao abrir o arquivo\n\n");
+    }
+    for (int i=0; !feof(arquivo); i++){
+        texto[i] = fgetc(arquivo);
+    }
+
+    fclose(arquivo);
+}
+
+//FUNÇAO PARA CRIPTOGRAFAR O TEXTO E O ARQUIVO TXT
+void criptografarTexto(char texto[], int tamanhoTexto, bool *verificar){
+    system("cls");
+    //Caso o texto ja esteja criptografado, bool verificador fica como TRUE
+    if(*verificar == true){
+        printf("--------------------------------------\n");
+        printf("-- IMPOSSIVEL CRIPTOGRAFAR ARQUIVO! --\n");
+        printf("--- ARQUIVO JA ESTA CRIPTOGRAFADO! ---\n");
+        printf("--------------------------------------\n\n");
+    }
+    else{
+        printf("---------------------------------------\n");
+        printf("SEU TEXTO FOI CRIPTOGRAFADO COM SUCESSO\n");
+        printf("----------------------------------------\n\n");
+
+        *verificar = true;
+
+        FILE *arquivo;
+
+        arquivo = fopen("AVALIACAO P2.txt","w");
+        for(int i = 0; i < tamanhoTexto; i++){
+                if((texto[i] >= 'a' && texto[i] <= 'z') ||(texto[i] >= 'A' && texto[i] <= 'Z') || (texto[i] >= '0') || (texto[i] == 32)){
+                    texto[i] = texto[i] + chave;
+                    fputc(texto[i], arquivo);
+                }
+        }
+        setbuf(stdin, NULL);
+        fclose(arquivo);
+    }
+}
+
+//FUNÇÃO PARA DESCRIPTOGRAFAR O TEXTO E O ARQUIVO TXT
+void descriptografarTexto(char texto[], int tamanhoTexto, bool *verificar){
+    system("cls");
+    //Caso o texto ja esteja descriptografado, bool verificador fica como false
+    if(*verificar == false){
+        printf("-----------------------------------------\n");
+        printf("-- IMPOSSIVEL DESCRIPTOGRAFAR ARQUIVO! --\n");
+        printf("--- ARQUIVO JA ESTA DESCRIPTOGRAFADO! ---\n");
+        printf("-----------------------------------------\n\n");
+    }
+    else{
+        printf("------------------------------------------\n");
+        printf("SEU TEXTO FOI DESCRIPTOGRAFADO COM SUCESSO\n");
+        printf("------------------------------------------\n\n");
+
+        FILE *arquivo;
+        arquivo = fopen("AVALIACAO P2.txt","w");
+        for(int i = 0; i < tamanhoTexto; i++){
+                if((texto[i] >= 'a' && texto[i] <= 'z') ||(texto[i] >= 'A' && texto[i] <= 'Z') || (texto[i] >= '0') || (texto[i] == 35)){
+                    texto[i] = texto[i] - chave;
+                    fputc(texto[i], arquivo);
+                }
+
+        }
+        setbuf(stdin, NULL); //Limpar buffer
+        *verificar = false;
+        fclose(arquivo);
+    }
+}
+
+int main()
+{
+    printf("---------------------------------------------------------------------------\n");
+    printf("\t\t\tSEJA MUITO BEM VINDO\n\nVim lhe dizer algumas informacoes importantes\n");
+    printf("1 - Caracteres especiais (, ; + / etc) nao serao aceitos!!\n");
+    printf("2 - Palavras com acentuacao nao serao aceitas!!\n");
+    printf("3 - O arquivo de texto sera criado na pasta que esta executando o codigo\n");
+    printf("4 - Limite de escrita: 1000 caracteres\n\n");
+    printf("Agradeco desde ja!!\n");
+    printf("----------------------------------------------------------------------------\n\n");
+    system("pause");
+
+    char texto[1000]; // Array onde estará o texto
+    int opcao; //Variavel de selecao do menu de opcoes
+
+    menuInicial(texto);
+    lerArquivo(texto);
+
+    int tamanhoTexto = strlen(texto); //Pega tamanho do texto
+    bool verificar = false; //Inicializa bool como false para falar que o texto nao esta criptografado
+    do{
+        menuOpcoes(&opcao);
+        switch(opcao){
+        case 1:
+            lerArquivo(texto);
+            printf("%s\n\n", texto);
+            break;
+
+        case 2:
+            criptografarTexto(texto, tamanhoTexto, &verificar);
+            lerArquivo(texto);
+            break;
+
+        case 3:
+            descriptografarTexto(texto, tamanhoTexto, &verificar);
+            lerArquivo(texto);
+            break;
+
+        case 9:
+            printf("\nObrigado por utilizar\nAte mais!!\n\n");
+            break;
+
+        default:
+            printf("\nOperacao invalida!!\nVoce sera redirecionado ao menu principal\n\n");
+            break;
+        }
+        system("pause");
+    }while(opcao != 9);
+
+    return 0;
+}
